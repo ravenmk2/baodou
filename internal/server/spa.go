@@ -2,6 +2,7 @@ package server
 
 import (
 	"io/fs"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -15,7 +16,9 @@ func SPAHandler(dist fs.FS) http.Handler {
 		p := strings.TrimPrefix(r.URL.Path, "/")
 		if f, err := dist.Open(p); err == nil {
 			st, statErr := f.Stat()
-			f.Close()
+			if err := f.Close(); err != nil {
+				log.Printf("close static file %q: %v", p, err)
+			}
 			if statErr == nil && !st.IsDir() {
 				fileServer.ServeHTTP(w, r)
 				return

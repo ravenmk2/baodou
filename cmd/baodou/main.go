@@ -16,7 +16,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer func() {
+		if err := db.Close(); err != nil {
+			log.Printf("close database: %v", err)
+		}
+	}()
 
 	handler := server.New(db)
 	log.Printf("listening on :8080 (version %s)", version)
